@@ -23,6 +23,10 @@ public class BackupManager {
 	}
 
 	public void createBackup() {
+		final var backupPath = ServerBackup.getInstance().getConfig().getString("BackupPath");
+		
+		var folder = new File(backupPath);
+
 		File worldFolder = new File(filePath);
 
 		if (filePath.equalsIgnoreCase("@server")) {
@@ -34,7 +38,7 @@ public class BackupManager {
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'~'HH-mm-ss");
 		df.setTimeZone(TimeZone.getDefault());
 
-		File backupFolder = new File("Backups//backup-" + df.format(date) + "-" + filePath + "//" + filePath);
+		File backupFolder = new File(folder, "backup-" + df.format(date) + "-" + filePath + "//" + filePath);
 
 		if (worldFolder.exists()) {
 			for (Player all : Bukkit.getOnlinePlayers()) {
@@ -45,8 +49,9 @@ public class BackupManager {
 
 			try {
 				if (!backupFolder.exists()) {
-					ZipManager zm = new ZipManager(worldFolder.getName(),
-							"Backups//backup-" + df.format(date) + "-" + filePath + ".zip", Bukkit.getConsoleSender(),
+					var backupFile = new File(folder, "backup-" + df.format(date) + "-" + filePath + ".zip");
+					
+					ZipManager zm = new ZipManager(worldFolder.getName(), backupFile.getAbsolutePath(), Bukkit.getConsoleSender(),
 							true, true);
 
 					zm.zip();
@@ -66,7 +71,11 @@ public class BackupManager {
 
 	public void removeBackup() {
 		Bukkit.getScheduler().runTaskAsynchronously(ServerBackup.getInstance(), () -> {
-			File file = new File("Backups//" + filePath);
+			final var backupPath = ServerBackup.getInstance().getConfig().getString("BackupPath");
+			
+			var folder = new File(backupPath);
+			
+			File file = new File(folder, filePath);
 
 			if (file.exists()) {
 				if (file.isDirectory()) {
