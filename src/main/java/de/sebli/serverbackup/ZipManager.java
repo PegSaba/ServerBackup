@@ -68,7 +68,12 @@ public class ZipManager {
 						}
 
 						zs.putNextEntry(zipEntry);
-						Files.copy(path, zs);
+						try {
+							Files.copy(path, zs);
+						} catch (Exception e) {
+							ServerBackup.getInstance().getLogger().log(Level.WARNING, "File backup failed: '" + path + "'");
+						}
+						
 						zs.closeEntry();
 					} catch (IOException e) {
 						e.printStackTrace();
